@@ -1,3 +1,45 @@
-print("Hello World")
-print("test num 2")
-print("final test")
+import socket
+import sys
+from datetime import datetime
+
+def scan_ports(host, start_port=1, end_port=5000):
+    remote_server_ip = socket.gethostbyname(host)
+    print("_" * 60)
+    print()
+    print(f"Please wait while scan remote host {remote_server_ip}")
+    print()
+    print("_" * 60)
+
+    t1 = datetime.now()
+
+    for port in range(start_port, end_port + 1):
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(0.2)
+        result = sock.connect_ex((remote_server_ip, port))
+        
+        if result == 0:
+            print(f"Port {port}: Open")
+        sock.close()
+    
+    t2 = datetime.now()
+    total = t2-t1
+    print(f"Scanning completed in {total}")
+
+def main():
+    try:
+        print("\033[1mWelcome to my port scanner!\033[0m")
+        print()
+        remote_host = input("Plz enter a remote host scan: ")
+        scan_ports(remote_host)
+    except KeyboardInterrupt:
+        print("\nYou pressed Ctrl + C")
+        sys.exit()
+    except socket.gaierror:
+        print("Hostname could not be resolved. Exiting")
+        sys.exit()
+    except socket.error:
+        print("Couldn't connect to server")
+        sys.exit()
+
+if __name__ == "__main__":
+    main()
