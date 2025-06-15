@@ -1,7 +1,9 @@
 import socket
 import sys
+import time
 from datetime import datetime
 
+start_time = time.time()
 def scan_ports(host, start_port=1, end_port=5000):
     remote_server_ip = socket.gethostbyname(host)
     print("_" * 60)
@@ -17,10 +19,26 @@ def scan_ports(host, start_port=1, end_port=5000):
         sock.settimeout(0.2)
         result = sock.connect_ex((remote_server_ip, port))
         
+        if time.time() - start_time > 50:
+            print()
+            print("Time to scan exceeds 50s, now scanning common ports only.")
+            print()
+            break
+
         if result == 0:
             print(f"Port {port}: Open")
         sock.close()
     
+    common_ports = [80, 443, 22, 8080]
+    for port in common_ports:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(0.3)
+        result = sock.connect_ex((remote_server_ip, port))
+        
+        if result == 0:
+            print(f"Port {port}: Open")
+        sock.close()
+
     t2 = datetime.now()
     total = t2-t1
     print(f"Scanning completed in {total}")
